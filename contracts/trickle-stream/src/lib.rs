@@ -1,6 +1,5 @@
 #![no_std]
-use soroban_sdk::{contract, contractimpl, contracttype, token, Address, Env};
-
+use soroban_sdk::{contract, contractimpl, contracttype, token, symbol_short, Address, Env};
 #[contracttype]
 #[derive(Clone)]
 pub struct Stream {
@@ -58,7 +57,7 @@ impl Contract {
 
         env.storage().persistent().set(&DataKey::Stream(id), &stream);
         env.storage().instance().set(&DataKey::StreamCounter, &(id + 1));
-
+        env.events().publish((symbol_short!("stream"), symbol_short!("created")), (id, amount, duration));   
         id
     }
 
@@ -93,6 +92,7 @@ impl Contract {
             );
             stream.withdrawn += available;
             env.storage().persistent().set(&DataKey::Stream(stream_id), &stream);
+            env.events().publish((symbol_short!("stream"), symbol_short!("withdraw")), (stream_id, available));
         }
 
         available
