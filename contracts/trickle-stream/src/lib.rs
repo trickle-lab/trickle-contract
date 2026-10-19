@@ -1,5 +1,11 @@
 #![no_std]
-use soroban_sdk::{contract, contractimpl, contracttype, token, symbol_short, Address, Env};
+#![allow(deprecated)] // events().publish is kept on purpose so the backend's topic decoding stays stable
+
+use soroban_sdk::{
+    contract, contracterror, contractimpl, contracttype, panic_with_error, symbol_short, token,
+    Address, Env,
+};
+
 #[contracttype]
 #[derive(Clone)]
 pub struct Stream {
@@ -18,6 +24,15 @@ pub enum DataKey {
     Stream(u64),
 }
 
+#[contracterror]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[repr(u32)]
+pub enum Error {
+    InvalidAmount = 1,
+    InvalidDuration = 2,
+    StreamNotFound = 3,
+}
+
 #[contract]
 pub struct Contract;
 
@@ -26,6 +41,7 @@ impl Contract {
     /// Create a new payment stream. Sender must authorize this call.
     /// Funds are pulled from sender into the contract immediately, then
     /// released to recipient linearly over `duration` seconds.
+    /// Fails with InvalidAmount if amount <= 0 and InvalidDuration if duration == 0.
     pub fn create_stream(
         env: Env,
         sender: Address,
@@ -35,6 +51,13 @@ impl Contract {
         duration: u64,
     ) -> u64 {
         sender.require_auth();
+
+        if amount <= 0 {
+            panic_with_error!(&env, Error::InvalidAmount);
+        }
+        if duration == 0 {
+            panic_with_error!(&env, Error::InvalidDuration);
+        }
 
         let token_client = token::Client::new(&env, &token);
         token_client.transfer(&sender, &env.current_contract_address(), &amount);
@@ -57,28 +80,22 @@ impl Contract {
 
         env.storage().persistent().set(&DataKey::Stream(id), &stream);
         env.storage().instance().set(&DataKey::StreamCounter, &(id + 1));
-        env.events().publish((symbol_short!("stream"), symbol_short!("created")), (id, amount, duration));   
+        env.events().publish(
+            (symbol_short!("stream"), symbol_short!("created")),
+            (id, amount, duration),
+        );
         id
     }
 
     /// Returns the amount currently available to withdraw (vested minus already withdrawn).
     pub fn balance(env: Env, stream_id: u64) -> i128 {
-        let stream: Stream = env
-            .storage()
-            .persistent()
-            .get(&DataKey::Stream(stream_id))
-            .expect("stream not found");
-
+        let stream = Self::load_stream(&env, stream_id);
         Self::available(&env, &stream)
     }
 
     /// Recipient withdraws whatever has vested so far.
     pub fn withdraw(env: Env, stream_id: u64) -> i128 {
-        let mut stream: Stream = env
-            .storage()
-            .persistent()
-            .get(&DataKey::Stream(stream_id))
-            .expect("stream not found");
+        let mut stream = Self::load_stream(&env, stream_id);
 
         stream.recipient.require_auth();
 
@@ -92,19 +109,19 @@ impl Contract {
             );
             stream.withdrawn += available;
             env.storage().persistent().set(&DataKey::Stream(stream_id), &stream);
-            env.events().publish((symbol_short!("stream"), symbol_short!("withdraw")), (stream_id, available));
+            env.events().publish(
+                (symbol_short!("stream"), symbol_short!("withdraw")),
+                (stream_id, available),
+            );
         }
 
         available
     }
 
-    /// Sender cancels the stream: recipient gets whatever vested, sender gets the rest back.
+    /// Sender cancels the stream: the recipient gets whatever has vested, the sender gets the rest back.
+    /// Emits stream/cancel with (stream_id, paid_to_recipient, refunded_to_sender).
     pub fn cancel(env: Env, stream_id: u64) {
-        let stream: Stream = env
-            .storage()
-            .persistent()
-            .get(&DataKey::Stream(stream_id))
-            .expect("stream not found");
+        let stream = Self::load_stream(&env, stream_id);
 
         stream.sender.require_auth();
 
@@ -120,6 +137,17 @@ impl Contract {
         }
 
         env.storage().persistent().remove(&DataKey::Stream(stream_id));
+        env.events().publish(
+            (symbol_short!("stream"), symbol_short!("cancel")),
+            (stream_id, vested, remainder),
+        );
+    }
+
+    fn load_stream(env: &Env, stream_id: u64) -> Stream {
+        env.storage()
+            .persistent()
+            .get(&DataKey::Stream(stream_id))
+            .unwrap_or_else(|| panic_with_error!(env, Error::StreamNotFound))
     }
 
     fn available(env: &Env, stream: &Stream) -> i128 {
