@@ -11,12 +11,15 @@ cd contracts/trickle-stream
 cargo build --target wasm32v1-none --release
 
 ## Testing
-cargo test is currently blocked by an upstream bug in soroban-env-host's test utilities
-(unrelated to this contract's code). Until resolved, verify changes by deploying to testnet
-and invoking functions directly:
-stellar contract deploy --wasm target/wasm32v1-none/release/trickle_stream.wasm --source <your-identity> --network testnet
+cd contracts/trickle-stream
+cargo test
+
+Keep Cargo.lock committed. It records a known-good set of dependency versions: the test utilities in
+soroban-env-host have broken before on newer ed25519-dalek and curve25519-dalek releases. If `cargo test`
+stops compiling after a `cargo update`, restore Cargo.lock from git.
+
 
 ## Pull Requests
 - Branch from main
 - Keep PRs focused on a single change
-- Describe what you tested and how, since automated tests are currently limited
+- Add or update tests for contract changes and make sure `cargo test` passes

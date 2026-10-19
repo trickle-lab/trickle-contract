@@ -13,6 +13,9 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32v1-none
+      - name: Run tests
+        working-directory: contracts/trickle-stream
+        run: cargo test
       - name: Build contract
         working-directory: contracts/trickle-stream
         run: cargo build --target wasm32v1-none --release

@@ -11,7 +11,7 @@ Soroban smart contract powering Trickle — a streaming payments protocol on Ste
 Every state-changing call emits an event so off-chain systems (like [trickle-backend](https://github.com/trickle-lab/trickle-backend)) can track activity without polling storage directly.
 
 ## Status
-Deployed and tested live on Stellar testnet. Core logic (create/withdraw/cancel/balance) is working end-to-end. `cargo test` is currently blocked by an upstream `soroban-env-host` dependency conflict — see open issues.
+Deployed and tested live on Stellar testnet. Core logic (create/withdraw/cancel/balance) works end to end, and the unit tests run in CI with `cargo test`.
 
 ## Setup
 See [CONTRIBUTING.md](./CONTRIBUTING.md).
