@@ -28,6 +28,6 @@ Apache License 2.0
 ## Live on Stellar testnet
 
 - Contract: [`CBM2KGHZZOHJ44GSHJWHY4YKTKOH3VUBBWZCXIG2NT2ONGBP6ANJMPGR`](https://stellar.expert/explorer/testnet/contract/CBM2KGHZZOHJ44GSHJWHY4YKTKOH3VUBBWZCXIG2NT2ONGBP6ANJMPGR)
-- Example `create_stream`: [transaction](https://stellar.expert/explorer/testnet/tx/ecc5ee89fc2bb6c5ac36172662b5addeaf4ec42d0547e9de892d5f3c3510a42d)
-- Example `withdraw`: [transaction](https://stellar.expert/explorer/testnet/tx/PASTE_WITHDRAW_HASH)
-- Example `cancel`: [transaction](https://stellar.expert/explorer/testnet/tx/PASTE_CANCEL_HASH)
+- Example `create_stream`: [transaction](https://stellar.expert/explorer/testnet/tx/de875169007aaf2ef6c9658d40a1028b8abb3936a8a85580139608e52afb7172)
+- Example `withdraw`: [transaction](https://stellar.expert/explorer/testnet/tx/20a3c054ff0ea38cd1f1b46106ea4b2d840bd7a3b935aff52ef3ccd69bc031d3)
+- Example `cancel`: [transaction](https://stellar.expert/explorer/testnet/tx/349c982c38cf8e83f0b339b3975d81a8463b2bffdb946ebb14003e4c3b3898e0)
