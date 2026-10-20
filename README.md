@@ -16,6 +16,8 @@ Deployed and tested live on Stellar testnet. Core logic (create/withdraw/cancel/
 ## Setup
 See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
+![Trickle architecture](docs/architecture.png)
+
 ## Part of Trickle
 - [trickle-contract](https://github.com/trickle-lab/trickle-contract) (this repo)
 - [trickle-backend](https://github.com/trickle-lab/trickle-backend)
@@ -23,3 +25,9 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## License
 Apache License 2.0
+## Live on Stellar testnet
+
+- Contract: [`CBM2KGHZZOHJ44GSHJWHY4YKTKOH3VUBBWZCXIG2NT2ONGBP6ANJMPGR`](https://stellar.expert/explorer/testnet/contract/CBM2KGHZZOHJ44GSHJWHY4YKTKOH3VUBBWZCXIG2NT2ONGBP6ANJMPGR)
+- Example `create_stream`: [transaction](https://stellar.expert/explorer/testnet/tx/ecc5ee89fc2bb6c5ac36172662b5addeaf4ec42d0547e9de892d5f3c3510a42d)
+- Example `withdraw`: [transaction](https://stellar.expert/explorer/testnet/tx/PASTE_WITHDRAW_HASH)
+- Example `cancel`: [transaction](https://stellar.expert/explorer/testnet/tx/PASTE_CANCEL_HASH)
